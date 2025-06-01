@@ -1,0 +1,160 @@
+================================================================================
+SAWAH CLASSIFICATION KNN-DTW TUNING EXPERIMENT
+Date: 2025-05-21 15:00:49
+Dataset: evi_campaka.csv
+Labels: label_sawah_campaka.csv
+EVI mode: True
+================================================================================
+
+EXPERIMENT PARAMETERS:
+DTW constraints: ['sakoe_chiba']
+DTW slopes: [1]
+DTW radii: [15, 30, 60]
+KNN values: [3, 7, 11, 15, 19]
+Start years: [2015, 2018, 2021]
+Year spans: [3, 5, 7]
+
+Total combinations to test: 135
+
+RESULTS:
+--------------------------------------------------------------------------------
+Iter  Year Range      DTW Parameters       k               Accuracy   Time (s)       
+--------------------------------------------------------------------------------
+1     2015-2018       sakoe_chiba, slope=1, rad=15 3               0.8357     84.44          
+>>> NEW BEST: Accuracy=0.8357 <<<
+2     2015-2018       sakoe_chiba, slope=1, rad=15 7               0.8423     81.38          
+>>> NEW BEST: Accuracy=0.8423 <<<
+3     2015-2018       sakoe_chiba, slope=1, rad=15 11              0.8396     81.24          
+4     2015-2018       sakoe_chiba, slope=1, rad=15 15              0.8422     82.19          
+5     2015-2018       sakoe_chiba, slope=1, rad=15 19              0.8279     83.88          
+6     2015-2018       sakoe_chiba, slope=1, rad=30 3               0.8306     81.00          
+7     2015-2018       sakoe_chiba, slope=1, rad=30 7               0.8422     82.86          
+8     2015-2018       sakoe_chiba, slope=1, rad=30 11              0.8357     85.24          
+9     2015-2018       sakoe_chiba, slope=1, rad=30 15              0.8344     85.39          
+10    2015-2018       sakoe_chiba, slope=1, rad=30 19              0.8292     83.12          
+11    2015-2018       sakoe_chiba, slope=1, rad=60 3               0.8319     86.47          
+12    2015-2018       sakoe_chiba, slope=1, rad=60 7               0.8449     85.54          
+>>> NEW BEST: Accuracy=0.8449 <<<
+13    2015-2018       sakoe_chiba, slope=1, rad=60 11              0.8370     86.95          
+14    2015-2018       sakoe_chiba, slope=1, rad=60 15              0.8331     84.13          
+15    2015-2018       sakoe_chiba, slope=1, rad=60 19              0.8279     84.38          
+16    2015-2020       sakoe_chiba, slope=1, rad=15 3               0.8383     181.15         
+17    2015-2020       sakoe_chiba, slope=1, rad=15 7               0.8514     181.31         
+>>> NEW BEST: Accuracy=0.8514 <<<
+18    2015-2020       sakoe_chiba, slope=1, rad=15 11              0.8605     181.29         
+>>> NEW BEST: Accuracy=0.8605 <<<
+19    2015-2020       sakoe_chiba, slope=1, rad=15 15              0.8488     181.06         
+20    2015-2020       sakoe_chiba, slope=1, rad=15 19              0.8462     180.91         
+21    2015-2020       sakoe_chiba, slope=1, rad=30 3               0.8410     190.30         
+22    2015-2020       sakoe_chiba, slope=1, rad=30 7               0.8488     190.37         
+23    2015-2020       sakoe_chiba, slope=1, rad=30 11              0.8462     190.86         
+24    2015-2020       sakoe_chiba, slope=1, rad=30 15              0.8487     190.44         
+25    2015-2020       sakoe_chiba, slope=1, rad=30 19              0.8462     190.26         
+26    2015-2020       sakoe_chiba, slope=1, rad=60 3               0.8332     207.40         
+27    2015-2020       sakoe_chiba, slope=1, rad=60 7               0.8462     207.50         
+28    2015-2020       sakoe_chiba, slope=1, rad=60 11              0.8475     207.88         
+29    2015-2020       sakoe_chiba, slope=1, rad=60 15              0.8462     207.64         
+30    2015-2020       sakoe_chiba, slope=1, rad=60 19              0.8435     210.23         
+31    2015-2022       sakoe_chiba, slope=1, rad=15 3               0.8384     970.76         
+32    2015-2022       sakoe_chiba, slope=1, rad=15 7               0.8514     991.23         
+33    2015-2022       sakoe_chiba, slope=1, rad=15 11              0.8513     982.50         
+34    2015-2022       sakoe_chiba, slope=1, rad=15 15              0.8540     980.78         
+35    2015-2022       sakoe_chiba, slope=1, rad=15 19              0.8500     958.55         
+36    2015-2022       sakoe_chiba, slope=1, rad=30 3               0.8423     988.10         
+37    2015-2022       sakoe_chiba, slope=1, rad=30 7               0.8553     994.91         
+38    2015-2022       sakoe_chiba, slope=1, rad=30 11              0.8579     995.80         
+39    2015-2022       sakoe_chiba, slope=1, rad=30 15              0.8501     994.23         
+40    2015-2022       sakoe_chiba, slope=1, rad=30 19              0.8488     980.58         
+41    2015-2022       sakoe_chiba, slope=1, rad=60 3               0.8436     1030.38        
+42    2015-2022       sakoe_chiba, slope=1, rad=60 7               0.8527     1032.34        
+43    2015-2022       sakoe_chiba, slope=1, rad=60 11              0.8488     1036.89        
+44    2015-2022       sakoe_chiba, slope=1, rad=60 15              0.8475     1017.92        
+45    2015-2022       sakoe_chiba, slope=1, rad=60 19              0.8461     1008.29        
+46    2018-2021       sakoe_chiba, slope=1, rad=15 3               0.8436     176.91         
+47    2018-2021       sakoe_chiba, slope=1, rad=15 7               0.8488     175.93         
+48    2018-2021       sakoe_chiba, slope=1, rad=15 11              0.8448     176.67         
+49    2018-2021       sakoe_chiba, slope=1, rad=15 15              0.8475     179.27         
+50    2018-2021       sakoe_chiba, slope=1, rad=15 19              0.8436     177.53         
+51    2018-2021       sakoe_chiba, slope=1, rad=30 3               0.8371     189.87         
+52    2018-2021       sakoe_chiba, slope=1, rad=30 7               0.8475     187.14         
+53    2018-2021       sakoe_chiba, slope=1, rad=30 11              0.8488     187.33         
+54    2018-2021       sakoe_chiba, slope=1, rad=30 15              0.8423     186.37         
+55    2018-2021       sakoe_chiba, slope=1, rad=30 19              0.8410     185.82         
+56    2018-2021       sakoe_chiba, slope=1, rad=60 3               0.8358     202.83         
+57    2018-2021       sakoe_chiba, slope=1, rad=60 7               0.8462     204.49         
+58    2018-2021       sakoe_chiba, slope=1, rad=60 11              0.8423     203.69         
+59    2018-2021       sakoe_chiba, slope=1, rad=60 15              0.8397     203.83         
+60    2018-2021       sakoe_chiba, slope=1, rad=60 19              0.8397     203.86         
+61    2018-2023       sakoe_chiba, slope=1, rad=15 3               0.8214     938.14         
+62    2018-2023       sakoe_chiba, slope=1, rad=15 7               0.8449     936.78         
+63    2018-2023       sakoe_chiba, slope=1, rad=15 11              0.8396     923.97         
+64    2018-2023       sakoe_chiba, slope=1, rad=15 15              0.8488     933.91         
+65    2018-2023       sakoe_chiba, slope=1, rad=15 19              0.8436     946.68         
+66    2018-2023       sakoe_chiba, slope=1, rad=30 3               0.8423     951.87         
+67    2018-2023       sakoe_chiba, slope=1, rad=30 7               0.8488     940.60         
+68    2018-2023       sakoe_chiba, slope=1, rad=30 11              0.8462     927.18         
+69    2018-2023       sakoe_chiba, slope=1, rad=30 15              0.8475     925.77         
+70    2018-2023       sakoe_chiba, slope=1, rad=30 19              0.8423     925.63         
+71    2018-2023       sakoe_chiba, slope=1, rad=60 3               0.8358     958.70         
+72    2018-2023       sakoe_chiba, slope=1, rad=60 7               0.8449     957.13         
+73    2018-2023       sakoe_chiba, slope=1, rad=60 11              0.8384     957.87         
+74    2018-2023       sakoe_chiba, slope=1, rad=60 15              0.8423     957.23         
+75    2018-2023       sakoe_chiba, slope=1, rad=60 19              0.8436     976.36         
+76    2018-2025       sakoe_chiba, slope=1, rad=15 3               0.8201     1742.58        
+77    2018-2025       sakoe_chiba, slope=1, rad=15 7               0.8514     1711.49        
+78    2018-2025       sakoe_chiba, slope=1, rad=15 11              0.8436     1658.01        
+79    2018-2025       sakoe_chiba, slope=1, rad=15 15              0.8449     1674.68        
+80    2018-2025       sakoe_chiba, slope=1, rad=15 19              0.8475     1733.82        
+81    2018-2025       sakoe_chiba, slope=1, rad=30 3               0.8318     1749.33        
+82    2018-2025       sakoe_chiba, slope=1, rad=30 7               0.8514     1684.26        
+83    2018-2025       sakoe_chiba, slope=1, rad=30 11              0.8514     1686.04        
+84    2018-2025       sakoe_chiba, slope=1, rad=30 15              0.8501     1754.87        
+85    2018-2025       sakoe_chiba, slope=1, rad=30 19              0.8475     1756.77        
+86    2018-2025       sakoe_chiba, slope=1, rad=60 3               0.8345     1740.32        
+87    2018-2025       sakoe_chiba, slope=1, rad=60 7               0.8566     1732.55        
+88    2018-2025       sakoe_chiba, slope=1, rad=60 11              0.8553     1782.73        
+89    2018-2025       sakoe_chiba, slope=1, rad=60 15              0.8475     1748.89        
+90    2018-2025       sakoe_chiba, slope=1, rad=60 19              0.8462     1769.65        
+91    2021-2024       sakoe_chiba, slope=1, rad=15 3               0.8135     207.64         
+92    2021-2024       sakoe_chiba, slope=1, rad=15 7               0.8370     208.93         
+93    2021-2024       sakoe_chiba, slope=1, rad=15 11              0.8318     215.64         
+94    2021-2024       sakoe_chiba, slope=1, rad=15 15              0.8344     209.57         
+95    2021-2024       sakoe_chiba, slope=1, rad=15 19              0.8318     207.92         
+96    2021-2024       sakoe_chiba, slope=1, rad=30 3               0.8135     217.04         
+97    2021-2024       sakoe_chiba, slope=1, rad=30 7               0.8382     218.96         
+98    2021-2024       sakoe_chiba, slope=1, rad=30 11              0.8422     221.19         
+99    2021-2024       sakoe_chiba, slope=1, rad=30 15              0.8409     220.10         
+100   2021-2024       sakoe_chiba, slope=1, rad=30 19              0.8331     217.71         
+101   2021-2024       sakoe_chiba, slope=1, rad=60 3               0.8226     237.99         
+102   2021-2024       sakoe_chiba, slope=1, rad=60 7               0.8409     236.70         
+103   2021-2024       sakoe_chiba, slope=1, rad=60 11              0.8357     237.04         
+104   2021-2024       sakoe_chiba, slope=1, rad=60 15              0.8383     235.64         
+105   2021-2024       sakoe_chiba, slope=1, rad=60 19              0.8383     235.86         
+106   2021-2026       sakoe_chiba, slope=1, rad=15 3               0.8200     768.64         
+107   2021-2026       sakoe_chiba, slope=1, rad=15 7               0.8436     775.03         
+108   2021-2026       sakoe_chiba, slope=1, rad=15 11              0.8436     786.49         
+109   2021-2026       sakoe_chiba, slope=1, rad=15 15              0.8410     783.87         
+110   2021-2026       sakoe_chiba, slope=1, rad=15 19              0.8423     788.31         
+111   2021-2026       sakoe_chiba, slope=1, rad=30 3               0.8200     794.52         
+112   2021-2026       sakoe_chiba, slope=1, rad=30 7               0.8461     774.19         
+113   2021-2026       sakoe_chiba, slope=1, rad=30 11              0.8370     782.27         
+114   2021-2026       sakoe_chiba, slope=1, rad=30 15              0.8332     803.08         
+115   2021-2026       sakoe_chiba, slope=1, rad=30 19              0.8383     813.90         
+116   2021-2026       sakoe_chiba, slope=1, rad=60 3               0.8278     839.86         
+117   2021-2026       sakoe_chiba, slope=1, rad=60 7               0.8383     838.57         
+118   2021-2026       sakoe_chiba, slope=1, rad=60 11              0.8397     808.78         
+119   2021-2026       sakoe_chiba, slope=1, rad=60 15              0.8358     801.47         
+120   2021-2026       sakoe_chiba, slope=1, rad=60 19              0.8371     801.97         
+121   2021-2028       sakoe_chiba, slope=1, rad=15 3               0.8200     757.39         
+122   2021-2028       sakoe_chiba, slope=1, rad=15 7               0.8436     757.72         
+123   2021-2028       sakoe_chiba, slope=1, rad=15 11              0.8436     779.57         
+124   2021-2028       sakoe_chiba, slope=1, rad=15 15              0.8410     788.57         
+125   2021-2028       sakoe_chiba, slope=1, rad=15 19              0.8423     778.24         
+126   2021-2028       sakoe_chiba, slope=1, rad=30 3               0.8200     802.58         
+127   2021-2028       sakoe_chiba, slope=1, rad=30 7               0.8461     801.68         
+128   2021-2028       sakoe_chiba, slope=1, rad=30 11              0.8370     803.22         
+129   2021-2028       sakoe_chiba, slope=1, rad=30 15              0.8332     803.10         
+130   2021-2028       sakoe_chiba, slope=1, rad=30 19              0.8383     801.77         
+131   2021-2028       sakoe_chiba, slope=1, rad=60 3               0.8278     830.84         
+132   2021-2028       sakoe_chiba, slope=1, rad=60 7               0.8383     823.29         
+133   2021-2028       sakoe_chiba, slope=1, rad=60 11              0.8397     830.38         

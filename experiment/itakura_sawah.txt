@@ -1,0 +1,120 @@
+================================================================================
+SAWAH CLASSIFICATION KNN-DTW TUNING EXPERIMENT
+Date: 2025-05-21 15:17:18
+Dataset: evi_campaka.csv
+Labels: label_sawah_campaka.csv
+EVI mode: True
+================================================================================
+
+EXPERIMENT PARAMETERS:
+DTW constraints: ['itakura']
+DTW slopes: [2, 3, 4, 5]
+DTW radii: [1]
+KNN values: [3, 7, 11, 15, 19]
+Start years: [2015, 2018, 2021]
+Year spans: [3, 5, 7]
+
+Total combinations to test: 180
+
+RESULTS:
+--------------------------------------------------------------------------------
+Iter  Year Range      DTW Parameters       k               Accuracy   Time (s)       
+--------------------------------------------------------------------------------
+1     2015-2018       itakura, slope=2, rad=1 3               0.8358     731.69         
+>>> NEW BEST: Accuracy=0.8358 <<<
+2     2015-2018       itakura, slope=2, rad=1 7               0.8436     799.66         
+>>> NEW BEST: Accuracy=0.8436 <<<
+3     2015-2018       itakura, slope=2, rad=1 11              0.8410     796.70         
+4     2015-2018       itakura, slope=2, rad=1 15              0.8396     801.24         
+5     2015-2018       itakura, slope=2, rad=1 19              0.8331     799.50         
+6     2015-2018       itakura, slope=3, rad=1 3               0.8319     809.98         
+7     2015-2018       itakura, slope=3, rad=1 7               0.8383     807.63         
+8     2015-2018       itakura, slope=3, rad=1 11              0.8475     811.49         
+>>> NEW BEST: Accuracy=0.8475 <<<
+9     2015-2018       itakura, slope=3, rad=1 15              0.8370     810.18         
+10    2015-2018       itakura, slope=3, rad=1 19              0.8305     797.10         
+11    2015-2018       itakura, slope=4, rad=1 3               0.8332     796.56         
+12    2015-2018       itakura, slope=4, rad=1 7               0.8422     811.82         
+13    2015-2018       itakura, slope=4, rad=1 11              0.8410     808.31         
+14    2015-2018       itakura, slope=4, rad=1 15              0.8358     804.17         
+15    2015-2018       itakura, slope=4, rad=1 19              0.8344     805.98         
+16    2015-2018       itakura, slope=5, rad=1 3               0.8293     807.17         
+17    2015-2018       itakura, slope=5, rad=1 7               0.8422     812.20         
+18    2015-2018       itakura, slope=5, rad=1 11              0.8396     813.42         
+19    2015-2018       itakura, slope=5, rad=1 15              0.8383     813.33         
+20    2015-2018       itakura, slope=5, rad=1 19              0.8318     815.01         
+21    2015-2020       itakura, slope=2, rad=1 3               0.8384     1960.48        
+22    2015-2020       itakura, slope=2, rad=1 7               0.8410     1967.37        
+23    2015-2020       itakura, slope=2, rad=1 11              0.8501     1986.42        
+>>> NEW BEST: Accuracy=0.8501 <<<
+24    2015-2020       itakura, slope=2, rad=1 15              0.8475     1991.87        
+25    2015-2020       itakura, slope=2, rad=1 19              0.8436     1995.44        
+26    2015-2020       itakura, slope=3, rad=1 3               0.8423     1998.66        
+27    2015-2020       itakura, slope=3, rad=1 7               0.8462     1989.26        
+28    2015-2020       itakura, slope=3, rad=1 11              0.8501     1992.03        
+29    2015-2020       itakura, slope=3, rad=1 15              0.8514     1995.76        
+>>> NEW BEST: Accuracy=0.8514 <<<
+30    2015-2020       itakura, slope=3, rad=1 19              0.8449     2021.04        
+31    2015-2020       itakura, slope=4, rad=1 3               0.8410     2035.74        
+32    2015-2020       itakura, slope=4, rad=1 7               0.8488     2004.86        
+33    2015-2020       itakura, slope=4, rad=1 11              0.8527     2014.92        
+>>> NEW BEST: Accuracy=0.8527 <<<
+34    2015-2020       itakura, slope=4, rad=1 15              0.8461     2039.27        
+35    2015-2020       itakura, slope=4, rad=1 19              0.8435     2017.87        
+36    2015-2020       itakura, slope=5, rad=1 3               0.8384     2018.33        
+37    2015-2020       itakura, slope=5, rad=1 7               0.8488     2036.46        
+38    2015-2020       itakura, slope=5, rad=1 11              0.8501     2040.95        
+39    2015-2020       itakura, slope=5, rad=1 15              0.8435     2024.74        
+40    2015-2020       itakura, slope=5, rad=1 19              0.8422     2028.96        
+41    2015-2022       itakura, slope=2, rad=1 3               0.8515     4494.19        
+42    2015-2022       itakura, slope=2, rad=1 7               0.8475     4471.05        
+43    2015-2022       itakura, slope=2, rad=1 11              0.8514     4530.27        
+44    2015-2022       itakura, slope=2, rad=1 15              0.8461     4525.90        
+45    2015-2022       itakura, slope=2, rad=1 19              0.8396     4434.54        
+46    2015-2022       itakura, slope=3, rad=1 3               0.8423     4639.04        
+47    2015-2022       itakura, slope=3, rad=1 7               0.8553     4618.37        
+>>> NEW BEST: Accuracy=0.8553 <<<
+48    2015-2022       itakura, slope=3, rad=1 11              0.8566     4625.30        
+>>> NEW BEST: Accuracy=0.8566 <<<
+49    2015-2022       itakura, slope=3, rad=1 15              0.8488     4589.82        
+50    2015-2022       itakura, slope=3, rad=1 19              0.8448     4603.19        
+51    2015-2022       itakura, slope=4, rad=1 3               0.8357     4562.62        
+52    2015-2022       itakura, slope=4, rad=1 7               0.8566     4618.71        
+53    2015-2022       itakura, slope=4, rad=1 11              0.8566     4600.20        
+54    2015-2022       itakura, slope=4, rad=1 15              0.8501     4572.96        
+55    2015-2022       itakura, slope=4, rad=1 19              0.8462     4650.63        
+56    2015-2022       itakura, slope=5, rad=1 3               0.8397     4618.74        
+57    2015-2022       itakura, slope=5, rad=1 7               0.8566     4635.06        
+58    2015-2022       itakura, slope=5, rad=1 11              0.8553     4686.09        
+59    2015-2022       itakura, slope=5, rad=1 15              0.8488     4614.03        
+60    2015-2022       itakura, slope=5, rad=1 19              0.8462     4696.23        
+61    2018-2021       itakura, slope=2, rad=1 3               0.8449     1933.80        
+62    2018-2021       itakura, slope=2, rad=1 7               0.8384     1944.66        
+63    2018-2021       itakura, slope=2, rad=1 11              0.8436     1945.57        
+64    2018-2021       itakura, slope=2, rad=1 15              0.8449     1951.24        
+65    2018-2021       itakura, slope=2, rad=1 19              0.8475     1946.51        
+66    2018-2021       itakura, slope=3, rad=1 3               0.8397     1969.17        
+67    2018-2021       itakura, slope=3, rad=1 7               0.8462     1942.38        
+68    2018-2021       itakura, slope=3, rad=1 11              0.8423     1944.55        
+69    2018-2021       itakura, slope=3, rad=1 15              0.8410     1963.96        
+70    2018-2021       itakura, slope=3, rad=1 19              0.8449     1963.22        
+71    2018-2021       itakura, slope=4, rad=1 3               0.8424     1961.70        
+72    2018-2021       itakura, slope=4, rad=1 7               0.8501     1972.53        
+73    2018-2021       itakura, slope=4, rad=1 11              0.8449     1986.59        
+74    2018-2021       itakura, slope=4, rad=1 15              0.8436     1974.36        
+75    2018-2021       itakura, slope=4, rad=1 19              0.8422     1960.82        
+76    2018-2021       itakura, slope=5, rad=1 3               0.8411     1982.71        
+77    2018-2021       itakura, slope=5, rad=1 7               0.8462     1987.62        
+78    2018-2021       itakura, slope=5, rad=1 11              0.8475     1983.40        
+79    2018-2021       itakura, slope=5, rad=1 15              0.8462     1966.48        
+80    2018-2021       itakura, slope=5, rad=1 19              0.8397     1984.82        
+81    2018-2023       itakura, slope=2, rad=1 3               0.8358     4247.71        
+82    2018-2023       itakura, slope=2, rad=1 7               0.8462     4285.91        
+83    2018-2023       itakura, slope=2, rad=1 11              0.8435     4249.10        
+84    2018-2023       itakura, slope=2, rad=1 15              0.8410     4304.54        
+85    2018-2023       itakura, slope=2, rad=1 19              0.8370     4273.96        
+86    2018-2023       itakura, slope=3, rad=1 3               0.8319     4374.29        
+87    2018-2023       itakura, slope=3, rad=1 7               0.8449     4401.78        
+88    2018-2023       itakura, slope=3, rad=1 11              0.8332     4340.87        
+89    2018-2023       itakura, slope=3, rad=1 15              0.8396     4395.22        
+90    2018-2023       itakura, slope=3, rad=1 19              0.8397     4364.60        

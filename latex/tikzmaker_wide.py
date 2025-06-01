@@ -19,7 +19,7 @@ filename = "ee-chart.csv"
 
 def read_vegetation_data(file_path):
     """Read and clean vegetation data from CSV"""
-    df = pd.read_csv(file_path, parse_dates=['system:time_start'])
+    df = pd.read_csv(file_path, parse_dates=['datetime'])
     df = df.dropna(subset=variables, how='all')
     
     # Handle numeric conversions safely
@@ -27,7 +27,7 @@ def read_vegetation_data(file_path):
         if df[col].dtype == object:  # Check if it's string/object type
             df[col] = df[col].astype(str).str.replace(',', '', regex=False).astype(float)
     
-    df['date'] = pd.to_datetime(df['system:time_start'])
+    df['date'] = pd.to_datetime(df['datetime'])
     df = df.sort_values('date')
     return df
 
