@@ -1,0 +1,72 @@
+'''
+# ========================
+# SECTION: MATRIX FAKTOR CUACA
+# ========================
+
+st.markdown("---")
+st.header("🔍 Matrix Faktor Cuaca per Lokasi")
+
+# Buat matrix untuk menampilkan faktor dominan
+st.subheader("📊 Faktor Dominan per Kombinasi Vegetasi-Kecamatan")
+
+specific_factors = get_location_specific_climate_factors()
+
+# Buat dataframe untuk matrix
+matrix_data = []
+for vegetasi in VEGETASI_LIST:
+    row_data = {'Vegetasi': vegetasi}
+    for kecamatan in ALL_KECAMATAN:
+        key = (vegetasi, kecamatan)
+        if key in specific_factors:
+            faktor = specific_factors[key]['faktor_dominan']
+            row_data[kecamatan] = faktor
+        else:
+            # Ambil faktor default
+            default_info = get_climate_factors(vegetasi, kecamatan)
+            row_data[kecamatan] = default_info.get('faktor_dominan', 'Default')
+    matrix_data.append(row_data)
+
+matrix_df = pd.DataFrame(matrix_data)
+st.dataframe(matrix_df, use_container_width=True)
+
+# Statistik faktor dominan
+st.subheader("📈 Statistik Faktor Dominan")
+col1, col2 = st.columns(2)
+
+with col1:
+    # Hitung frekuensi faktor dominan
+    all_factors = []
+    for key, value in specific_factors.items():
+        all_factors.append(value['faktor_dominan'])
+    
+    factor_counts = pd.Series(all_factors).value_counts()
+    
+    fig_pie = px.pie(
+        values=factor_counts.values, 
+        names=factor_counts.index,
+        title="Distribusi Faktor Dominan"
+    )
+    st.plotly_chart(fig_pie, use_container_width=True)
+
+with col2:
+    st.write("**Daftar Kombinasi dengan Data Spesifik:**")
+    for key, value in specific_factors.items():
+        vegetasi, kecamatan = key
+        st.write(f"• **{vegetasi}** di **{kecamatan}**: {value['faktor_dominan']}")
+'''
+
+with col1:
+    st.subheader("Variabel Cuaca Paling Berkaitan")
+    st.info(f"**Faktor Berkaitan**: {climate_info['faktor_utama']}")
+    # st.write(f"📌 {climate_info['catatan']}")
+    
+    # Tambahkan informasi faktor dominan
+    st.success(f"**Faktor Dominan:** {climate_info.get('faktor_dominan', 'Tidak ditentukan')}")
+
+with col2:
+    st.subheader("🎯 Kondisi Cuaca Optimal")
+    st.success(f"""
+    **Curah Hujan:** {climate_info['curah_hujan']}  
+    **Suhu:** {climate_info['suhu']}  
+    **Kelembaban:** {climate_info['kelembaban']}
+    """)

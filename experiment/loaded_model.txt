@@ -1,8 +1,8 @@
 ================================================================================
 SAWAH CLASSIFICATION KNN-DTW TUNING EXPERIMENT
-Date: 2025-05-22 11:41:33
-Dataset: evi_campaka_label_only.csv
-Labels: label_sawah_campaka.csv
+Date: 2025-06-16 16:58:06
+Dataset: evi_warungkondang.csv
+Labels: label_sawah_warungkondang.csv
 EVI mode: True
 ================================================================================
 
@@ -20,12 +20,3 @@ RESULTS:
 --------------------------------------------------------------------------------
 Iter  Year Range      DTW Parameters       k               Accuracy   Time (s)       
 --------------------------------------------------------------------------------
-1     2015-2020       sakoe_chiba, slope=1, rad=15 11              0.8566     386.64         
->>> NEW BEST: Accuracy=0.8566 <<<
---------------------------------------------------------------------------------
-
-SUMMARY:
-Total tuning time: 386.69 seconds
-Best accuracy: 0.8566
-Best parameters:
-{'dtw': {'constraint': 'sakoe_chiba', 'slope': 1, 'radius': 15}, 'k': 11, 'year': {'start': 2015, 'span': 5}, 'acc': 0.8566473000683527}
