@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
 from datetime import datetime, date
 import numpy as np
 
@@ -15,12 +17,11 @@ st.set_page_config(
 # Data kabupaten dan kecamatan
 KABUPATEN_KECAMATAN = {
     "Cianjur": [
-        "Warungkondang", "Gekbrong", "Cugenang", "Cianjur", 
+        "Warungkondang", "Gekbrong", "Cugenang", "Cianjur",
         "Campaka", "Cilaku", "Cibeber"
     ]
 }
 
-# Daftar semua kecamatan untuk fungsi yang membutuhkan
 ALL_KECAMATAN = []
 for kecamatan_list in KABUPATEN_KECAMATAN.values():
     ALL_KECAMATAN.extend(kecamatan_list)
@@ -80,7 +81,6 @@ def get_location_specific_climate_factors():
     Mengembalikan faktor cuaca yang spesifik untuk setiap kombinasi vegetasi dan kecamatan
     """
     climate_factors = {
-        # PADI - berbeda per kecamatan
         ("Padi Pandanwangi", "Warungkondang"): {
             "faktor_utama": "Titik pengembunan,Angin(Barat-Timur),Suhu udara minimum,Volume air tanah,Temperatur tanah,Temperatur udara,Temperatur maksimum,Kelembapan udara",
             "titik_pengembunan": '19.23 - 20.61 °C',
@@ -150,7 +150,7 @@ def get_location_specific_climate_factors():
             "faktor_dominan": "Volume air tanah dan Temperatur tanah"
         },
     }
-    
+
     return climate_factors
 
 def get_climate_factors(vegetasi, kecamatan):
@@ -159,13 +159,12 @@ def get_climate_factors(vegetasi, kecamatan):
     Jika tidak ada data spesifik, return data default berdasarkan vegetasi
     """
     specific_factors = get_location_specific_climate_factors()
-    
+
     # Cek apakah ada data spesifik untuk kombinasi ini
     key = (vegetasi, kecamatan)
     if key in specific_factors:
         return specific_factors[key]
-    
-    # Jika tidak ada, gunakan data default berdasarkan vegetasi
+
     default_factors = {
         "Padi": {
             "faktor_utama": "Curah Hujan dan Suhu",
@@ -176,7 +175,7 @@ def get_climate_factors(vegetasi, kecamatan):
             "faktor_dominan": "Curah Hujan"
         },
         "Jagung": {
-            "faktor_utama": "Suhu dan Sinar Matahari", 
+            "faktor_utama": "Suhu dan Sinar Matahari",
             "curah_hujan": "400-800 mm/tahun",
             "suhu": "21-27°C",
             "kelembaban": "60-70%",
@@ -185,151 +184,106 @@ def get_climate_factors(vegetasi, kecamatan):
         },
         "Kentang": {
             "faktor_utama": "Suhu Dingin dan Kelembaban",
-            "curah_hujan": "500-700 mm/tahun", 
+            "curah_hujan": "500-700 mm/tahun",
             "suhu": "15-20°C",
             "kelembaban": "80-85%",
             "catatan": "Cocok di dataran tinggi dengan suhu sejuk",
             "faktor_dominan": "Suhu Dingin"
         }
     }
-    
+
     # Default untuk vegetasi lain
     default = {
         "faktor_utama": "Suhu dan Curah Hujan",
         "curah_hujan": "600-1000 mm/tahun",
-        "suhu": "20-28°C", 
+        "suhu": "20-28°C",
         "kelembaban": "65-75%",
         "catatan": "Kondisi iklim tropis pada umumnya",
         "faktor_dominan": "Suhu"
     }
-    
-    return default_factors.get(vegetasi, default)
 
-# =========================
-# PADA VERSI INI, DATASET DIGENERATE SECARA RANDOM, ANDA DAPAT MENYINKRONKAN DENGAN DATASET ASLI
-# =========================
+    return default_factors.get(vegetasi.split(' ')[0], default) # Use only the first word for default
+
+@st.cache_data
+def load_climate_data(dataset_type, kecamatan):
+    """Loads climate data from CSV based on dataset type and kecamatan."""
+    df_climate = pd.DataFrame()
+    if dataset_type == "MERRA-2":
+        df_climate = pd.read_csv(f"../climate_timeseries/cleaned/POWER_all.csv")
+    else:
+        if dataset_type == 'ERA-5':
+            dataset_type = 'era5'
+        file_name = f"../climate_timeseries/cleaned/{dataset_type.lower()}_{kecamatan.lower()}.csv"
+        df_climate = pd.read_csv(file_name)
+
+    df_climate['Tanggal'] = pd.to_datetime(df_climate['datetime'])
+    df_climate = df_climate.drop(columns=['datetime']) 
+    return df_climate
+
+@st.cache_data
+def load_vegetation_data(kecamatan):
+    """Loads vegetation data from CSV based on kecamatan."""
+    df_veg = pd.DataFrame()
+    file_name = f"../veg_df/veg_{kecamatan.lower()}.csv"
+    df_veg = pd.read_csv(file_name)
+    df_veg['Tanggal'] = pd.to_datetime(df_veg['datetime'])
+    df_veg = df_veg.drop(columns=['datetime'])
+    df_veg = df_veg[['Tanggal','growth']]
+    if 'growth' in df_veg.columns:
+        df_veg = df_veg.rename(columns={'growth': 'Pertumbuhan (%)'})
+    return df_veg
+
 
 def generate_sample_data(kecamatan, vegetasi, start_date, end_date, dataset_type="ERA-5"):
     """
-    Fungsi untuk menghasilkan data contoh berdasarkan faktor dominan dan dataset type
+    Loads and combines actual climate and vegetation data.
     """
-    date_range = pd.date_range(start=start_date, end=end_date, freq='M')
-    
-    # Ambil faktor dominan untuk kombinasi ini
-    climate_info = get_climate_factors(vegetasi, kecamatan)
-    faktor_dominan = climate_info.get('faktor_dominan', 'Suhu')
-    
-    # Simulasi data pertumbuhan berdasarkan vegetasi dan faktor dominan
-    base_growth = {
-        "Padi": 75, "Jagung": 65, "Kentang": 55,
-        "Tomat": 60, "Cabai": 70, "Kacang Tanah": 50, "Ubi Jalar": 45
-    }
-    
-    # Tambahkan variasi random untuk simulasi
-    np.random.seed(hash(kecamatan + vegetasi) % 1000)
-    growth_data = []
-    
-    for i, tanggal in enumerate(date_range):
-        base = base_growth.get(vegetasi, 60)
-        seasonal = 10 * np.sin(2 * np.pi * i / 12)  # Variasi musiman
-        
-        # Variasi berdasarkan faktor dominan
-        if faktor_dominan == "Temperatur":
-            temp_factor = 5 * np.sin(2 * np.pi * i / 12 + np.pi/4)
-            noise = np.random.normal(0, 3)
-        elif faktor_dominan == "Kelembaban":
-            temp_factor = 3 * np.cos(2 * np.pi * i / 12)
-            noise = np.random.normal(0, 4)
-        elif faktor_dominan == "Curah Hujan":
-            temp_factor = 8 * np.random.exponential(0.5) if np.random.random() > 0.7 else 2
-            noise = np.random.normal(0, 6)
-        else:
-            temp_factor = 0
-            noise = np.random.normal(0, 5)
-        
-        growth = max(0, base + seasonal + temp_factor + noise)
-        
-        # Base data row
-        data_row = {
-            'Tanggal': tanggal,
-            'Pertumbuhan (%)': round(growth, 1)
-        }
-        
-        # Generate weather data based on dataset type
-        if dataset_type == "ERA-5":
-            data_row.update({
-                'temperature_2m': round(np.random.normal(26, 3), 1),
-                'temperature_2m_min': round(np.random.normal(22, 3), 1),
-                'temperature_2m_max': round(np.random.normal(30, 3), 1),
-                'soil_temperature_level_1': round(np.random.normal(24, 2), 1),
-                'soil_temperature_level_2': round(np.random.normal(23, 2), 1),
-                'volumetric_soil_water_layer_1': round(np.random.normal(35, 10), 1),
-                'volumetric_soil_water_layer_2': round(np.random.normal(30, 8), 1),
-                'volumetric_soil_water_layer_3': round(np.random.normal(25, 6), 1),
-                'total_precipitation_sum': round(max(0, np.random.exponential(5)), 1),
-                'dewpoint_temperature_2m': round(np.random.normal(20, 3), 1),
-                'surface_solar_radiation_downwards_sum': round(np.random.normal(200, 50), 1),
-                'surface_net_solar_radiation_sum': round(np.random.normal(150, 40), 1),
-                'total_evaporation_sum': round(max(0, np.random.normal(3, 1)), 1),
-                'u_component_of_wind_10m': round(np.random.normal(2, 1.5), 1),
-                'v_component_of_wind_10m': round(np.random.normal(1.5, 1.2), 1)
-            })
-        elif dataset_type == "CHIRTS":
-            data_row.update({
-                'heat_index': round(np.random.normal(28, 4), 1),
-                'maximum_temperature': round(np.random.normal(32, 4), 1),
-                'minimum_temperature': round(np.random.normal(20, 3), 1),
-                'relative_humidity': round(np.random.normal(75, 15), 1),
-                'saturation_vapor_pressure': round(np.random.normal(3.2, 0.5), 2),
-                'vapor_pressure_deficit': round(np.random.normal(0.8, 0.3), 2)
-            })
-        elif dataset_type == "MERRA-2":
-            data_row.update({
-                'T2M': round(np.random.normal(26, 3), 1),
-                'T2MDEW': round(np.random.normal(20, 3), 1),
-                'T2MWET': round(np.random.normal(23, 3), 1),
-                'TS': round(np.random.normal(28, 4), 1),
-                'T2M_RANGE': round(np.random.normal(10, 3), 1),
-                'T2M_MAX': round(np.random.normal(30, 4), 1),
-                'T2M_MIN': round(np.random.normal(22, 3), 1),
-                'PS': round(np.random.normal(101.3, 2), 1),
-                'WS2M': round(np.random.normal(3, 1.5), 1),
-                'WS2M_MAX': round(np.random.normal(8, 2), 1),
-                'WS2M_MIN': round(np.random.normal(1, 0.5), 1),
-                'GWETTOP': round(np.random.normal(0.4, 0.15), 2),
-                'GWETROOT': round(np.random.normal(0.35, 0.12), 2)
-            })
-        
-        growth_data.append(data_row)
-    
-    return pd.DataFrame(growth_data)
+    # Load vegetation data
+    df_veg = load_vegetation_data(kecamatan)
+    # print(df_veg.head())
+    # print(df_veg.tail())
 
 
+    # Load climate data
+    df_climate = load_climate_data(dataset_type, kecamatan)
+    if df_climate.empty:
+        return pd.DataFrame() # Return empty if no climate data
+
+
+    df_veg['Tanggal'] = df_veg['Tanggal'].dt.normalize()
+    df_climate['Tanggal'] = df_climate['Tanggal'].dt.normalize()
+
+    df_veg = df_veg[(df_veg['Tanggal'] >= pd.to_datetime(start_date)) & (df_veg['Tanggal'] <= pd.to_datetime(end_date))]
+    df_climate = df_climate[(df_climate['Tanggal'] >= pd.to_datetime(start_date)) & (df_climate['Tanggal'] <= pd.to_datetime(end_date))]
+
+    combined_df = pd.merge(df_veg, df_climate, on='Tanggal', how='inner')
+    combined_df = combined_df.sort_values(by='Tanggal').reset_index(drop=True)
+
+    return combined_df
 
 def create_download_data(kecamatan, dataset_type, start_date, end_date):
     """
-    Membuat data CSV untuk diunduh
+    Loads actual climate data for download.
     """
-    date_range = pd.date_range(start=start_date, end=end_date, freq='D')
-    
-    weather_data = []
-    np.random.seed(hash(kecamatan + dataset_type) % 1000)
-    
-    for tanggal in date_range:
-        data_row = {
-            'Tanggal': tanggal.strftime('%Y-%m-%d'),
-            'Kabupaten': kecamatan.split(', ')[1] if ', ' in kecamatan else 'Cianjur',
-            'Kecamatan': kecamatan.split(', ')[0] if ', ' in kecamatan else kecamatan,
-            'Dataset': dataset_type,
-            'Suhu_Min': round(np.random.normal(20, 3), 1),
-            'Suhu_Max': round(np.random.normal(30, 4), 1),
-            'Curah_Hujan': round(max(0, np.random.exponential(5)), 1),
-            'Kelembaban': round(np.random.normal(75, 15), 1),
-            'Kecepatan_Angin': round(np.random.normal(8, 3), 1)
-        }
-        weather_data.append(data_row)
-    
-    return pd.DataFrame(weather_data)
+    df_climate = load_climate_data(dataset_type, kecamatan)
+    if df_climate.empty:
+        return pd.DataFrame()
+
+    df_climate = df_climate[(df_climate['Tanggal'] >= pd.to_datetime(start_date)) & (df_climate['Tanggal'] <= pd.to_datetime(end_date))]
+
+    df_climate['Kabupaten'] = 'Cianjur'
+    df_climate['Kecamatan'] = kecamatan
+    df_climate['Dataset'] = dataset_type
+
+    common_weather_cols = ['Tanggal', 'Kabupaten', 'Kecamatan', 'Dataset']
+
+    for param_key in WEATHER_PARAMETERS.get(dataset_type, {}).keys():
+        if param_key in df_climate.columns:
+            common_weather_cols.append(param_key)
+
+    cols_to_include = [col for col in common_weather_cols if col in df_climate.columns]
+    return df_climate[cols_to_include]
+
 
 # ========================
 # TAMPILAN UTAMA APLIKASI
@@ -339,7 +293,7 @@ st.title("🌱 Analisis Iklim-Vegetasi")
 st.markdown("---")
 
 # Sidebar untuk input utama
-st.sidebar.header("⚙️ Pengaturan")
+st.sidebar.header("Pengaturan")
 
 # Dropdown pemilihan kabupaten
 selected_kabupaten = st.sidebar.selectbox(
@@ -399,30 +353,23 @@ if start_date >= end_date:
 
 if selected_kabupaten and selected_kecamatan and selected_vegetasi:
     st.header(f"Dashboard Vegetasi {selected_vegetasi} \nKec. {selected_kecamatan}, Kab. {selected_kabupaten}")
-    
+
     # Ambil data iklim untuk vegetasi dan kecamatan yang dipilih
     climate_info = get_climate_factors(selected_vegetasi, selected_kecamatan)
-    
+
     # Layout dengan 2 kolom
     col1, col2 = st.columns(2)
-    
+
     with col1:
         st.subheader("Variabel Cuaca Paling Berkaitan")
         faktor_utama_list = climate_info['faktor_utama'].split(',')
-        faktor_utama_txt = "**Faktor Utama:**  \n\n" + "  \n".join(faktor_utama_list)
+        faktor_utama_txt = "**Faktor Utama:** \n\n" + "  \n".join(faktor_utama_list)
         st.info(faktor_utama_txt)
-        # st.write(f"📌 {climate_info['catatan']}")
-        
+
         # Tambahkan informasi faktor dominan
         st.success(f"**Faktor Dominan:** {climate_info.get('faktor_dominan', 'Tidak ditentukan')}")
-    
+
     with col2:
-        # st.subheader("🎯 Kondisi Cuaca Optimal")
-        # st.success(f"""
-        # **Curah Hujan:** {climate_info['curah_hujan']}  
-        # **Suhu:** {climate_info['suhu']}  
-        # **Kelembaban:** {climate_info['kelembaban']}
-        # """)
         st.subheader("🎯 Faktor Iklim Berkaitan dengan Suhu")
 
         # Daftar faktor suhu yang akan dicek
@@ -452,13 +399,13 @@ if selected_kabupaten and selected_kecamatan and selected_vegetasi:
             st.success(faktor_suhu_text)
         else:
             st.info("Tidak ada data faktor suhu yang tersedia.")
-    
+
     st.markdown("---")
-    
+
     # Filter rentang tanggal untuk grafik
     st.subheader("Visualisasi Grafik")
     col1, col2 = st.columns(2)
-    
+
     with col1:
         chart_start_date = st.date_input(
             "Tanggal Mulai Grafik:",
@@ -467,7 +414,7 @@ if selected_kabupaten and selected_kecamatan and selected_vegetasi:
             max_value=end_date,
             key="chart_start"
         )
-    
+
     with col2:
         chart_end_date = st.date_input(
             "Tanggal Akhir Grafik:",
@@ -476,146 +423,157 @@ if selected_kabupaten and selected_kecamatan and selected_vegetasi:
             max_value=end_date,
             key="chart_end"
         )
-    
+
     # Validasi rentang tanggal grafik
     if chart_start_date >= chart_end_date:
         st.error("Tanggal mulai grafik harus lebih awal dari tanggal akhir!")
         st.stop()
-    
+
     # Ambil data untuk chart dengan filter tanggal
     chart_data = generate_sample_data(selected_kecamatan, selected_vegetasi, chart_start_date, chart_end_date, selected_dataset)
-        
-    # Pilihan tampilan chart
-    chart_type = st.radio(
-        "Pilih data yang ingin ditampilkan:",
-        ["Pertumbuhan Vegetasi", "Data Cuaca", "Gabungan"],
-        horizontal=True
-    )
-    
-    if chart_type == "Pertumbuhan Vegetasi":
-        fig = px.line(
-            chart_data, 
-            x='Tanggal', 
-            y='Pertumbuhan (%)',
-            title=f'Pertumbuhan {selected_vegetasi} di {selected_kecamatan}, {selected_kabupaten}<br><sub>Dataset: {selected_dataset} | Periode: {chart_start_date} - {chart_end_date}</sub>',
-            color_discrete_sequence=['#2E8B57']
-        )
-        fig.update_layout(height=400)
-        st.plotly_chart(fig, use_container_width=True)
-        
-    elif chart_type == "Data Cuaca":
-        # Parameter selection untuk data cuaca
-        st.subheader("🌦️ Pilih Parameter Cuaca")
-        available_params = WEATHER_PARAMETERS.get(selected_dataset, {})
-        
-        selected_params = st.multiselect(
-            f"Pilih parameter cuaca dari dataset {selected_dataset}:",
-            options=list(available_params.keys()),
-            default=list(available_params.keys())[:3] if len(available_params) > 3 else list(available_params.keys()),
-            format_func=lambda x: available_params.get(x, x)
-        )
-        
-        if not selected_params:
-            st.warning("Silakan pilih minimal satu parameter cuaca!")
-        else:
-            # Chart untuk data cuaca (multiple lines)
-            fig = go.Figure()
-            
-            colors = ['#4169E1', '#FF6347', '#32CD32', '#FF69B4', '#20B2AA', '#FFA500', '#9370DB', '#DC143C']
-            
-            for i, param in enumerate(selected_params):
-                if param in chart_data.columns:
-                    fig.add_trace(go.Scatter(
-                        x=chart_data['Tanggal'], 
-                        y=chart_data[param],
-                        mode='lines', 
-                        name=available_params.get(param, param),
-                        line=dict(color=colors[i % len(colors)])
-                    ))
-            
-            fig.update_layout(
-                title=f'Data Cuaca di {selected_kecamatan}, {selected_kabupaten}<br><sub>Dataset: {selected_dataset} | Periode: {chart_start_date} - {chart_end_date}</sub>',
-                xaxis_title='Tanggal',
-                yaxis_title='Nilai Parameter',
-                height=500,
-                hovermode='x unified'
-            )
-            
-            st.plotly_chart(fig, use_container_width=True)
-            
-            # Info parameter yang dipilih
-            with st.expander("ℹ️ Info Parameter yang Dipilih"):
-                for param in selected_params:
-                    if param in available_params:
-                        st.write(f"**{param}**: {available_params[param]}")
-        
-    else:  # Gabungan
-        from plotly.subplots import make_subplots
 
-        # Parameter selection untuk gabungan
-        st.subheader("🌦️ Pilih Parameter Cuaca untuk Grafik Gabungan")
-        available_params = WEATHER_PARAMETERS.get(selected_dataset, {})
-        
-        selected_params_combined = st.multiselect(
-            f"Pilih parameter cuaca dari dataset {selected_dataset}:",
-            options=list(available_params.keys()),
-            default=list(available_params.keys())[:2] if len(available_params) > 2 else list(available_params.keys()),
-            format_func=lambda x: available_params.get(x, x),
-            key="combined_params"
+    if chart_data.empty:
+        st.warning("No data available for the selected parameters and date range.")
+    else:
+        # Pilihan tampilan chart
+        chart_type = st.radio(
+            "Pilih data yang ingin ditampilkan:",
+            ["Pertumbuhan Vegetasi", "Data Cuaca", "Gabungan"],
+            horizontal=True
         )
-        
-        if not selected_params_combined:
-            st.warning("Silakan pilih minimal satu parameter cuaca untuk grafik gabungan!")
-        else:
-            # Create subplot dengan 2 y-axis
-            fig = make_subplots(
-                rows=2, cols=1,
-                subplot_titles=('Pertumbuhan Vegetasi (%)', 'Parameter Cuaca Terpilih'),
-                vertical_spacing=0.1,
-                shared_xaxes=True
+
+        if chart_type == "Pertumbuhan Vegetasi":
+            print(chart_data.head())
+            if 'Pertumbuhan (%)' in chart_data.columns:
+                fig = px.line(
+                    chart_data,
+                    x='Tanggal',
+                    y='Pertumbuhan (%)',
+                    title=f'Pertumbuhan {selected_vegetasi} di {selected_kecamatan}, {selected_kabupaten}<br><sub>Dataset: {selected_dataset} | Periode: {chart_start_date} - {chart_end_date}</sub>',
+                    color_discrete_sequence=['#2E8B57']
+                )
+                fig.update_layout(height=400)
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.warning("Kolom 'Pertumbuhan (%)' tidak ditemukan di data vegetasi yang dimuat.")
+
+        elif chart_type == "Data Cuaca":
+            # Parameter selection untuk data cuaca
+            st.subheader("🌦️ Pilih Parameter Cuaca")
+            available_params = WEATHER_PARAMETERS.get(selected_dataset, {})
+
+            filtered_available_params = {k: v for k, v in available_params.items() if k in chart_data.columns}
+
+
+            selected_params = st.multiselect(
+                f"Pilih parameter cuaca dari dataset {selected_dataset}:",
+                options=list(filtered_available_params.keys()),
+                default=list(filtered_available_params.keys())[:3] if len(filtered_available_params) > 3 else list(filtered_available_params.keys()),
+                format_func=lambda x: available_params.get(x, x)
             )
-            
-            # Grafik pertumbuhan vegetasi
-            fig.add_trace(
-                go.Scatter(
-                    x=chart_data['Tanggal'], 
-                    y=chart_data['Pertumbuhan (%)'],
-                    mode='lines+markers',
-                    name='Pertumbuhan Vegetasi (%)',
-                    line=dict(color='#2E8B57', width=3),
-                    marker=dict(size=6)
-                ),
-                row=1, col=1
-            )
-            
-            # Grafik parameter cuaca
-            colors = ['#4169E1', '#FF6347', '#32CD32', '#FF69B4', '#20B2AA', '#FFA500', '#9370DB', '#DC143C']
-            
-            for i, param in enumerate(selected_params_combined):
-                if param in chart_data.columns:
-                    fig.add_trace(
-                        go.Scatter(
-                            x=chart_data['Tanggal'], 
+
+            if not selected_params:
+                st.warning("Silakan pilih minimal satu parameter cuaca!")
+            else:
+                fig = go.Figure()
+
+                colors = ['#4169E1', '#FF6347', '#32CD32', '#FF69B4', '#20B2AA', '#FFA500', '#9370DB', '#DC143C']
+
+                for i, param in enumerate(selected_params):
+                    if param in chart_data.columns:
+                        fig.add_trace(go.Scatter(
+                            x=chart_data['Tanggal'],
                             y=chart_data[param],
                             mode='lines',
                             name=available_params.get(param, param),
-                            line=dict(color=colors[i % len(colors)], width=2)
-                        ),
-                        row=2, col=1
-                    )
-            
-            fig.update_layout(
-                title=f'Grafik Gabungan: {selected_vegetasi} di {selected_kecamatan}, {selected_kabupaten}<br><sub>Dataset: {selected_dataset} | Periode: {chart_start_date} - {chart_end_date}</sub>',
-                height=600,
-                showlegend=True,
-                hovermode='x unified'
+                            line=dict(color=colors[i % len(colors)])
+                        ))
+
+                fig.update_layout(
+                    title=f'Data Cuaca di {selected_kecamatan}, {selected_kabupaten}<br><sub>Dataset: {selected_dataset} | Periode: {chart_start_date} - {chart_end_date}</sub>',
+                    xaxis_title='Tanggal',
+                    yaxis_title='Nilai Parameter',
+                    height=500,
+                    hovermode='x unified'
+                )
+
+                st.plotly_chart(fig, use_container_width=True)
+
+                # Info parameter yang dipilih
+                with st.expander("Info Parameter yang Dipilih"):
+                    for param in selected_params:
+                        if param in available_params:
+                            st.write(f"**{param}**: {available_params[param]}")
+
+        else:
+            # Parameter selection untuk gabungan
+            st.subheader("🌦️ Pilih Parameter Cuaca untuk Grafik Gabungan")
+            available_params = WEATHER_PARAMETERS.get(selected_dataset, {})
+            # Filter available_params to only include columns present in chart_data
+            filtered_available_params = {k: v for k, v in available_params.items() if k in chart_data.columns}
+
+            selected_params_combined = st.multiselect(
+                f"Pilih parameter cuaca dari dataset {selected_dataset}:",
+                options=list(filtered_available_params.keys()),
+                default=list(filtered_available_params.keys())[:2] if len(filtered_available_params) > 2 else list(filtered_available_params.keys()),
+                format_func=lambda x: available_params.get(x, x),
+                key="combined_params"
             )
-            
-            fig.update_xaxes(title_text="Tanggal", row=2, col=1)
-            fig.update_yaxes(title_text="Pertumbuhan (%)", row=1, col=1)
-            fig.update_yaxes(title_text="Nilai Parameter", row=2, col=1)
-            
-            st.plotly_chart(fig, use_container_width=True)
+
+            if not selected_params_combined:
+                st.warning("Silakan pilih minimal satu parameter cuaca untuk grafik gabungan!")
+            elif 'Pertumbuhan (%)' not in chart_data.columns:
+                st.warning("Kolom 'Pertumbuhan (%)' tidak ditemukan di data vegetasi yang dimuat. Tidak dapat membuat grafik gabungan.")
+            else:
+                # Create subplot dengan 2 y-axis
+                fig = make_subplots(
+                    rows=2, cols=1,
+                    subplot_titles=('Pertumbuhan Vegetasi (%)', 'Parameter Cuaca Terpilih'),
+                    vertical_spacing=0.1,
+                    shared_xaxes=True
+                )
+
+                # Grafik pertumbuhan vegetasi
+                fig.add_trace(
+                    go.Scatter(
+                        x=chart_data['Tanggal'],
+                        y=chart_data['Pertumbuhan (%)'],
+                        mode='lines+markers',
+                        name='Pertumbuhan Vegetasi (%)',
+                        line=dict(color='#2E8B57', width=3),
+                        marker=dict(size=6)
+                    ),
+                    row=1, col=1
+                )
+
+                # Grafik parameter cuaca
+                colors = ['#4169E1', '#FF6347', '#32CD32', '#FF69B4', '#20B2AA', '#FFA500', '#9370DB', '#DC143C']
+
+                for i, param in enumerate(selected_params_combined):
+                    if param in chart_data.columns:
+                        fig.add_trace(
+                            go.Scatter(
+                                x=chart_data['Tanggal'],
+                                y=chart_data[param],
+                                mode='lines',
+                                name=available_params.get(param, param),
+                                line=dict(color=colors[i % len(colors)], width=2)
+                            ),
+                            row=2, col=1
+                        )
+
+                fig.update_layout(
+                    title=f'Grafik Gabungan: {selected_vegetasi} di {selected_kecamatan}, {selected_kabupaten}<br><sub>Dataset: {selected_dataset} | Periode: {chart_start_date} - {chart_end_date}</sub>',
+                    height=600,
+                    showlegend=True,
+                    hovermode='x unified'
+                )
+
+                fig.update_xaxes(title_text="Tanggal", row=2, col=1)
+                fig.update_yaxes(title_text="Pertumbuhan (%)", row=1, col=1)
+                fig.update_yaxes(title_text="Nilai Parameter", row=2, col=1)
+
+                st.plotly_chart(fig, use_container_width=True)
 
 
 # ========================
@@ -633,7 +591,7 @@ with col1:
         list(KABUPATEN_KECAMATAN.keys()),
         key="download_kabupaten"
     )
-    
+
     if download_kabupaten:
         available_download_kecamatan = KABUPATEN_KECAMATAN[download_kabupaten]
         download_kecamatan = st.selectbox(
@@ -655,7 +613,7 @@ with col3:
     st.write("📄 Info Dataset:")
     dataset_info = {
         "ERA-5": "Dataset reanalisis cuaca global",
-        "CHIRTS": "Data suhu dan presipitasi harian", 
+        "CHIRTS": "Data suhu dan presipitasi harian",
         "MERRA-2": "Data meteorologi modern"
     }
     st.info(dataset_info[dataset_type])
@@ -688,23 +646,26 @@ if st.button("🔄 Siapkan Dataset untuk Diunduh", type="primary"):
         with st.spinner("Menyiapkan dataset..."):
             import time
             time.sleep(2)
-            
+
             download_data = create_download_data(
-                f"{download_kecamatan}, {download_kabupaten}", dataset_type, download_start, download_end
+                download_kecamatan, dataset_type, download_start, download_end
             )
-            
-            csv_data = download_data.to_csv(index=False)
-            filename = f"{dataset_type}_{download_kabupaten}_{download_kecamatan}_{download_start}_{download_end}.csv"
-            
-            st.success(f"✅ Dataset siap! ({len(download_data)} baris data)")
-            
-            st.download_button(
-                label="📥 Unduh Dataset CSV",
-                data=csv_data,
-                file_name=filename,
-                mime="text/csv",
-                type="secondary"
-            )
-            
-            with st.expander("👀 Pratinjau Dataset"):
-                st.dataframe(download_data.head(10), use_container_width=True)
+
+            if not download_data.empty:
+                csv_data = download_data.to_csv(index=False)
+                filename = f"{dataset_type}_{download_kabupaten}_{download_kecamatan}_{download_start}_{download_end}.csv"
+
+                st.success(f"Dataset siap. ({len(download_data)} baris data)")
+
+                st.download_button(
+                    label="Unduh Dataset CSV",
+                    data=csv_data,
+                    file_name=filename,
+                    mime="text/csv",
+                    type="secondary"
+                )
+
+                with st.expander("Pratinjau Dataset"):
+                    st.dataframe(download_data.head(10), use_container_width=True)
+            else:
+                st.warning("No data found for the selected download criteria.")
