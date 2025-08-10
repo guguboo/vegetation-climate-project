@@ -1,5 +1,11 @@
-/raw_clusters_ts
 /temp_viz
 /ipynb_checkpoints
 /.ipynb_checkpoints
 /.virtual_documents
+raw_clusters_ts/evi_campaka.csv
+raw_clusters_ts/evi_cianjur.csv
+raw_clusters_ts/evi_cibeber.csv
+raw_clusters_ts/evi_cilaku.csv
+raw_clusters_ts/evi_cugenang.csv
+raw_clusters_ts/evi_gekbrong.csv
+raw_clusters_ts/evi_warungkondang.csv
